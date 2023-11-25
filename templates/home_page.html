@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Filmes by Joaquim e Pedro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('/assets/Cinema1.png');
+            background-color: black;
+            background-size: 100% auto; 
+            background-position: center top; 
+            background-repeat: no-repeat; 
+        }
+
+        .container_site {
+            text-align: center; 
+        }
+
+        h1 {
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            font-size: 2em; 
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000000;
+            margin-top: 10px; 
+            margin-bottom: 10px; 
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px; 
+            border-radius: 10px;
+            max-width: 100%; 
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #genreDropdown {
+            font-size: 16px; 
+            padding: 10px;    
+            width: 200px;     
+            height: 50px;
+        }
+
+        #sortDropdown {
+            font-size: 16px; 
+            padding: 10px;    
+            width: 200px;     
+            height: 50px;
+        }
+
+        .movie {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            flex: 0 0 400px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+            border-radius: 8px; 
+        }
+
+        .movie-info {
+            margin-left: 0  ;
+        }
+
+        .movie-info p {
+            text-align: justify;
+        }
+
+        .movie-poster img {
+            width: 220px; 
+            height: 300px;
+            border-radius: 4px; 
+            display: flex;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #moviesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; 
+            gap: 10px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container_site">
+        <h1>Joaquim & Pedro Filmes</h1>
+        <select id="genreDropdown">
+            <option value="default">Selecione o Gênero</option>
+        </select>
+        <select id="sortDropdown">
+            <option value="default">Opções de Listagem</option>
+            <option value="alphabetical">Ordem Alfabética</option>
+            <option value="date">Mais Recentes</option>
+        </select>
+        <div id="moviesContainer"></div>
+        <div id="paginationContainer"></div>
+    </div>
+    <script>
+        
+        let currentPage = 1;
+        const moviesPerPage = 3;
+
+        function populateDropdown(jsonData) {
+            // Insere as opcoes dentro do Dropdown a partir da leitura de um arquivo json
+            var select = document.getElementById("genreDropdown");
+                jsonData.genres.forEach(function(genre) {
+                    var option = document.createElement("option");
+                    option.text = genre.name;
+                    option.value = genre.id;
+                    select.add(option);
+                });
+        }
+
+        let currentMovieData = []; // Armazenar os dados dos filmes globalmente
+
+        function fetchMoviesByGenre(genreId) {
+            // Função para buscar na API
+            var apiKey = 'e3af560b5c5504c965c876d9a2fe3130';
+            var apiUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&with_genres=${genreId}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data =>{
+                    currentMovieData = data.results;
+                    displayMovies(currentMovieData,1);
+                })
+        }
+
+        function displayMovies(movieData, page) {
+            var moviesContainer = document.getElementById('moviesContainer');
+            moviesContainer.innerHTML = ''; // Limpa os filmes anteriores
+
+            const start = (page - 1) * moviesPerPage;
+            const end = start + moviesPerPage;
+            const paginatedMovies = movieData.slice(start, end);
+
+            paginatedMovies.forEach(movie => {
+                // contêiner para cada filme
+                var movieElement = document.createElement('div');
+                movieElement.classList.add('movie');
+
+                // URL do pôster
+                const baseUrl = 'https://image.tmdb.org/t/p/';
+                const posterSize = 'w200';
+                let posterUrl = baseUrl + posterSize + movie.poster_path;
+
+                // HTML para o cartaz do filme
+                movieElement.innerHTML = `
+                    <div class="movie-poster">
+                        <img src="${posterUrl}" alt="${movie.title}">
+                    </div>
+                    <div class="movie-info">
+                        <p><strong>Título:</strong> ${movie.title}</p>
+                        <p><strong>Data de Lançamento:</strong> ${movie.release_date}</p>
+                        <p><strong>Sinopse:</strong> ${movie.overview}</p>
+                    </div>
+                `;
+
+                moviesContainer.appendChild(movieElement);
+            });
+
+            createPaginationButtons(movieData.length);
+        }
+
+        function createPaginationButtons(totalMovies) {
+            // Funçâo para criação dos botões (paginaçâo)
+            const paginationContainer = document.getElementById('paginationContainer');
+            paginationContainer.innerHTML = ''; 
+
+            const totalPages = Math.ceil(totalMovies / moviesPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.innerText = i;
+                // Evento para clique no botão
+                button.addEventListener('click', () => {
+                    currentPage = i;
+                    displayMovies(currentMovieData, i);
+                });
+                paginationContainer.appendChild(button);
+            }
+        }
+
+        function onGenreSelect() {
+            // Funcao para selecionar filmes dado um gênero
+            var select = document.getElementById("genreDropdown");
+            var selectedGenreId = select.value;
+
+            if (selectedGenreId === "default") {
+                return;
+            }
+            document.getElementById("sortDropdown").value = "default";
+            
+            fetchMoviesByGenre(selectedGenreId);
+        }
+
+        function sortMovies(sortType) {
+            // Funcao para escolha de Listagem (Alfabetica, por data, default 'maneira como vem')
+            if (sortType === 'alphabetical') {
+                currentMovieData.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (sortType === 'date') {
+                console.log(currentMovieData)
+                currentMovieData.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+            }else if (sortType === 'default') {
+                var genreDropdown = document.getElementById("genreDropdown");
+                var selectedGenreId = genreDropdown.value;
+
+                if (selectedGenreId === "default") {
+                    return;
+                }
+                fetchMoviesByGenre(selectedGenreId);
+                return;
+            }
+            displayMovies(currentMovieData, 1);
+        }
+
+        window.onload = function() {
+            // Busca relação "Gênero" : "ID(int)" em arquivo existente para consulta em API
+            var PathJson = '/assets/genres.json';
+            fetch(PathJson)
+                .then(response => response.json())
+                .then(data => populateDropdown(data));
+            
+            // Evento para o dropdown de gêneros
+            document.getElementById("genreDropdown").addEventListener('change', onGenreSelect);
+
+            // Evento para o dropdown de classificação
+            document.getElementById("sortDropdown").addEventListener('change', function() {
+                sortMovies(this.value);
+            });
+        };
+    </script>
+</body>
+</html>
