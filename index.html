@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #141414; /* Fundo preto, característico do Netflix */
+            color: #fff; /* Texto branco */
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-top: 50px;
+            color: #e5e5e5; /* Um cinza claro para o título */
+            text-shadow: 
+                1px 1px 0 #d0d0d0, /* Sombra suave para a direita e para baixo */
+                3px 3px 0 #b0b0b0; /* Sombra ainda mais suave e um pouco mais distante */
+        }
+
+        h3 {
+            margin-top: 30px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #b3b3b3; /* Cinza para texto secundário */
+        }
+
+        .button-container {
+            margin-top: 50px;
+        }
+
+        /* Botões */
+        .button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 15px 20px;
+            background-color: #e50914; /* Vermelho vibrante do Netflix */
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .button:hover {
+            background-color: #f40612; /* Um tom mais escuro ao passar o mouse */
+            transform: scale(1.05); /* Efeito de zoom ao passar o mouse */
+        }
+
+        /* Estilos Adicionais */
+        .movie, .actor {
+            color: #ffffff; /* Branco para destaque */
+            font-weight: bold;
+        }
+
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .button {
+                width: 80%;
+                padding: 10px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Movie info by<br>Joaquim & Pedro</h1>
+    <div class="button-container">
+        <h3>Do you want to search by <span class="movie">genre</span> or <span class="actor">actor</span>?</h3>
+        <a href="./api/templates/select_by_genre.html" class="button">Genre</a>
+        <a href="./api/templates/select_by_actor.html" class="button">Actor</a>
+    </div>
+</body>
+</html>
