@@ -108,16 +108,18 @@
 
         nav {
             background-color: rgba(0, 0, 0, 0.5);
-            overflow: hidden;
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
+            z-index: 1000; /* Certifique-se de que a navbar esteja sempre na parte superior */
         }
 
         ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         li {
@@ -126,19 +128,28 @@
 
         li a {
             display: block;
-            color: white;
+            color: #fff;
             text-align: center;
             padding: 10px 20px;
             text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         li a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
+            background-color: #ff4500; /* Cor de laranja, você pode escolher outra cor que goste */
+            color: #fff;
         }
 
         .nav-space {
             height: 30px; /* Ajuste a altura conforme necessário para criar espaço suficiente */
+        }
+
+        .image-error-message {
+            display: block;
+            padding: 10px;
+            background-color: red;
+            color: white;
+            text-align: center;
         }
 
     </style>
@@ -227,6 +238,16 @@
             moviesContainer.innerHTML = `<div class='error-message'>Erro: ${errorMessage}</div>`;
         }
 
+        function handleImageError(imageElement) {
+            // Criar um novo elemento span para a mensagem de erro
+            var errorMessage = document.createElement('span');
+            errorMessage.textContent = 'Erro ao carregar imagem';
+            errorMessage.className = 'image-error-message'; // Classe para estilização CSS
+
+            // Remover a imagem e adicionar a mensagem de erro
+            imageElement.parentNode.replaceChild(errorMessage, imageElement);
+        }
+
         function displayMovies(movieData, page) {
             var moviesContainer = document.getElementById('moviesContainer');
             moviesContainer.innerHTML = ''; // Limpa os filmes anteriores
@@ -252,7 +273,7 @@
                 // HTML para o cartaz do filme
                 movieElement.innerHTML = `
                     <div class="movie-poster">
-                        <img src="${posterUrl}" alt="${movie.title}">
+                        <img src="${posterUrl}" alt="${movie.title}" onerror="handleImageError(this)">
                     </div>
                     <div class="movie-info">
                         <p class='movie-title'><strong>Title:</strong> ${movie.title}</p>

@@ -64,10 +64,29 @@
         }
 
         .error-message {
+            visibility: hidden;
+            min-width: 250px;
+            margin: auto;
+            background-color: #333;
             color: red;
             font-size: 1.2em;
             margin-top: 20px;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
         }
+
+        .error-show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
 
         .movie-title {
             font-size: 18px;
@@ -100,16 +119,18 @@
 
         nav {
             background-color: rgba(0, 0, 0, 0.5);
-            overflow: hidden;
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
+            z-index: 1000; /* Certifique-se de que a navbar esteja sempre na parte superior */
         }
 
         ul {
             list-style-type: none;
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
 
         li {
@@ -118,21 +139,21 @@
 
         li a {
             display: block;
-            color: white;
+            color: #fff;
             text-align: center;
             padding: 10px 20px;
             text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         li a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
+            background-color: #ff4500; /* Cor de laranja, você pode escolher outra cor que goste */
+            color: #fff;
         }
 
         .nav-space {
             height: 30px; /* Ajuste a altura conforme necessário para criar espaço suficiente */
         }
-
         #actorNameInput {
             font-size: 20px;
             width: 200px;
@@ -143,6 +164,14 @@
             font-size: 20px;
             width: 100px; /* Você pode ajustar a largura do botão conforme necessário */
             height: 35px;
+        }
+
+        .image-error-message {
+            display: block;
+            padding: 10px;
+            background-color: red;
+            color: white;
+            text-align: center;
         }
 
     </style>
@@ -206,6 +235,7 @@
                 .then(data => {
                     if (data.results.length > 0) {
                         const actorId = data.results[0].id;
+                        console.log(data)
                         fetchMoviesByActor(actorId);
                     } else {
                         displayError('Nenhum ator encontrado.');
@@ -237,6 +267,16 @@
                 });
         }
 
+        function handleImageError(imageElement) {
+            // Criar um novo elemento span para a mensagem de erro
+            var errorMessage = document.createElement('span');
+            errorMessage.textContent = 'Erro ao carregar imagem';
+            errorMessage.className = 'image-error-message'; // Classe para estilização CSS
+
+            // Remover a imagem e adicionar a mensagem de erro
+            imageElement.parentNode.replaceChild(errorMessage, imageElement);
+        }
+
         function displayMovies(movieData,page) {
             var actorMoviesContainer = document.getElementById('actorMoviesContainer');
             actorMoviesContainer.innerHTML = ''; // Limpa os filmes anteriores
@@ -255,7 +295,6 @@
                 const posterSize = 'w200';
                 let posterUrl = baseUrl + posterSize + movie.poster_path;
 
-                
                 // Verifica se o overview é mais longo que o limite
                 const limit = 150;
                 const showMoreButton = movie.overview.length > limit;
@@ -263,7 +302,7 @@
                 // HTML para o cartaz do filme
                 movieElement.innerHTML = `
                     <div class="movie-poster">
-                        <img src="${posterUrl}" alt="${movie.title}">
+                        <img src="${posterUrl}" alt="${movie.title}" onerror="handleImageError(this)">
                     </div>
                     <div class="movie-info">
                         <p class='movie-title'><strong>Title:</strong> ${movie.title}</p>
@@ -286,7 +325,11 @@
             actorpaginationContainer.innerHTML = '';
 
             var actorMoviesContainer = document.getElementById('actorMoviesContainer');
-            actorMoviesContainer.innerHTML = `<div class='error-message'>Erro: ${errorMessage}</div>`;
+            actorMoviesContainer.innerHTML = `<div class='error-message error-show'>Erro: ${errorMessage} 😞</div>`;
+            setTimeout(function () {
+                var errorElement = document.querySelector('.error-message');
+                errorElement.classList.remove('error-show');
+            }, 3000);
         }
     
 
